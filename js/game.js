@@ -2,7 +2,7 @@
     import { OrbitControls } from './three.js-master/examples/jsm/controls/OrbitControls.js';
     import { GLTFLoader } from './three.js-master/examples/jsm/loaders/GLTFLoader.js';
 
-    var scene, camera, renderer, cube, controls, draughts, board, mouse, raycaster, selectedPiece = null;
+    var scene, camera, renderer, cube, controls, draughts, board, mouse, raycaster, selectedPiece = null, move;
 
     function init() {
         draughts = new Draughts();
@@ -24,18 +24,18 @@
         board = new THREE.Group();
 
         let squareNumber = 1;
-        for (let x = 0; x < 10; x++) {
-            for (let z = 0; z < 10; z++) {
+        for (let z = 0; z < 10; z++) {
+            for (let x = 0; x < 10; x++) {
             let cube;
-            if (z % 2 == 0) {
-                cube = new THREE.Mesh(square, x % 2 == 0 ? lightsquare : darksquare);
-                if (x % 2 != 0) {
+            if (z % 2 != 0) {
+                cube = new THREE.Mesh(square, x % 2 == 0 ? darksquare : lightsquare);
+                if (x % 2 == 0) {
                 cube.userData.squareNumber = squareNumber;
                 squareNumber++;
                 }
             } else {
-                cube = new THREE.Mesh(square, x % 2 == 0 ? darksquare : lightsquare);
-                if (x % 2 == 0) {
+                cube = new THREE.Mesh(square, x % 2 == 0 ? lightsquare : darksquare);
+                if (x % 2 != 0) {
                 cube.userData.squareNumber = squareNumber;
                 squareNumber++;
                 }
@@ -151,6 +151,7 @@
     }
 
     function onClick(event) {
+        console.log(draughts.ascii());
         raycaster.setFromCamera(mouse, camera);
         let intersects = raycaster.intersectObjects(scene.children);
         if (intersects.length > 0) {
@@ -170,8 +171,13 @@
                 }
                 const targetPosition = positionForSquare(targetSquare);
                 selectedObject.position.set(targetPosition.x, selectedObject.position.y, targetPosition.z);
+                //scene.remove(selectedObject);
                 selectedObject.currentSquare = targetSquare;
-
+                
+                console.log(draughts.move({from: selectedPiece, to: targetSquare}));
+                draughts.remove(selectedPiece);
+                draughts.remove
+                console.log(draughts.moves());
                 selectedPiece = null;
             }
         }
