@@ -2,7 +2,7 @@
     import { OrbitControls } from './three.js-master/examples/jsm/controls/OrbitControls.js';
     import { GLTFLoader } from './three.js-master/examples/jsm/loaders/GLTFLoader.js';
 
-    var scene, camera, renderer, cube, controls, draughts, board, mouse, raycaster, selectedPiece = null, move;
+    var scene, camera, renderer, cube, controls, draughts, board, mouse, raycaster, selectedPiece = null, move, takesFlag = false, takeSquare, moveDone, piecesCaptured, pieceToBeRemoved;
 
     function init() {
         draughts = new Draughts();
@@ -165,19 +165,59 @@
 
             if (intersects.length > 0 && intersects[0].object.userData.squareNumber) {
                 const targetSquare = intersects[0].object.userData.squareNumber;
+                //console.log(selectedPiece);
                 const selectedObject = scene.children.find((child) => child.userData.currentSquare == selectedPiece);
-                if (!selectedObject || !targetSquare) {
+                if (!selectedObject || !targetSquare || draughts.turn() != selectedObject.userData.color) {
                     return;
                 }
                 const targetPosition = positionForSquare(targetSquare);
                 selectedObject.position.set(targetPosition.x, selectedObject.position.y, targetPosition.z);
                 //scene.remove(selectedObject);
-                selectedObject.currentSquare = targetSquare;
+                console.log(selectedObject.userData.currentSquare);
+                console.log(targetSquare);
+                moveDone = draughts.move({from: selectedObject.userData.currentSquare, to: targetSquare});
+                console.log(moveDone);
+                if (typeof moveDone.piecesTaken != 'undefined') {
+                    scene.remove(pieceToBeRemoved);
+                }
+                selectedObject.userData.currentSquare = targetSquare;
+                console.log(selectedObject.userData.currentSquare);
+
                 
-                console.log(draughts.move({from: selectedPiece, to: targetSquare}));
-                draughts.remove(selectedPiece);
-                draughts.remove
-                console.log(draughts.moves());
+                /*if (takesFlag == true) {
+                    draughts.remove(move[0].from);
+                    draughts.remove(takeSquare[0]);
+                    if (piecesCaptured[0] == "w") {
+                        pieceTaker = 'b';
+                    } else if (piecesCaptured[0] == "b") {
+                        pieceTaker = 'w';
+                    }
+                    //console.log(draughts.put('w', 17));
+                    draughts.put(pieceTaker, move[0].to);
+                    console.log(takeSquare[0]);
+                    //const pieceToDelete = scene.children.find((child) => child.userData.currentSquare == takeSquare[0] + "");
+                    //console.log(pieceToDelete);
+                    scene.remove(pieceToBeRemoved);
+                    console.log(draughts.turn());
+                    console.log(draughts.move({from: move[0].from, to: move[0].to}));
+                    scene.remove(pieceToBeRemoved);
+
+                } else {
+                    console.log(draughts.move({from: selectedPiece, to: targetSquare}));
+                }*/
+                move = draughts.moves();
+                console.log(move);
+                //console.log(move[0].takes);
+
+
+                if(move[0].takes.length > 0) {
+                    //takesFlag = true;
+                    //takeSquare = move[0].takes;
+                    //piecesCaptured = move[0].piecesCaptured;
+                    pieceToBeRemoved = selectedObject;
+                    //console.log(takeSquare[0]);
+                }
+
                 selectedPiece = null;
             }
         }
